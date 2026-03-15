@@ -525,6 +525,8 @@ const styles = `
     box-shadow: var(--shadow-sm);
     border: 1px solid rgba(26,46,90,0.06);
     overflow: hidden;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   table {
@@ -617,6 +619,9 @@ const styles = `
     .kpi-grid { grid-template-columns: repeat(2, 1fr); }
     .dash-content { padding: 24px 20px; }
     .topbar { padding: 0 20px; }
+    .section-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .tutor-info-bar { flex-wrap: wrap; gap: 16px; }
+    table { min-width: 700px; }
   }
 `;
 
@@ -734,6 +739,15 @@ export default function App() {
     return f.getUTCFullYear() === mesSeleccionado.anio && (f.getUTCMonth() + 1) === mesSeleccionado.mes;
   });
 
+  // KPIs calculados del mes filtrado
+  const kpiMes = {
+    totalReportes: detalleFiltrado.length,
+    totalHoras: detalleFiltrado.reduce((s, d) => s + (parseFloat(d.DuracionHoras) || 0), 0),
+    totalPresenciales: detalleFiltrado.filter(d => (d.Modalidad || "").toLowerCase().includes("presencial")).length,
+    totalVirtuales: detalleFiltrado.filter(d => (d.Modalidad || "").toLowerCase().includes("virtual")).length,
+    estimadoTotal: detalleFiltrado.reduce((s, d) => s + (parseFloat(d.MontoEstimado) || 0), 0),
+  };
+
   const nombreMesSeleccionado = `${MESES[mesSeleccionado.mes - 1]} ${mesSeleccionado.anio}`;
 
   const today = new Date().toLocaleDateString("es-PE", {
@@ -849,27 +863,27 @@ export default function App() {
           <div className="kpi-grid">
             <div className="kpi-card">
               <span className="kpi-icon">📋</span>
-              <span className="kpi-val">{resumen.totalReportes}</span>
+              <span className="kpi-val">{kpiMes.totalReportes}</span>
               <span className="kpi-lbl">Total reportes</span>
             </div>
             <div className="kpi-card">
               <span className="kpi-icon">⏱</span>
-              <span className="kpi-val">{resumen.totalHoras}</span>
+              <span className="kpi-val">{kpiMes.totalHoras.toFixed(2)}</span>
               <span className="kpi-lbl">Horas registradas</span>
             </div>
             <div className="kpi-card">
               <span className="kpi-icon">🏫</span>
-              <span className="kpi-val">{resumen.totalPresenciales}</span>
+              <span className="kpi-val">{kpiMes.totalPresenciales}</span>
               <span className="kpi-lbl">Presenciales</span>
             </div>
             <div className="kpi-card">
               <span className="kpi-icon">💻</span>
-              <span className="kpi-val">{resumen.totalVirtuales}</span>
+              <span className="kpi-val">{kpiMes.totalVirtuales}</span>
               <span className="kpi-lbl">Virtuales</span>
             </div>
             <div className="kpi-card accent">
               <span className="kpi-icon">💰</span>
-              <span className="kpi-val">S/ {resumen.estimadoTotal}</span>
+              <span className="kpi-val">S/ {kpiMes.estimadoTotal.toFixed(2)}</span>
               <span className="kpi-lbl">Estimado total</span>
             </div>
           </div>
